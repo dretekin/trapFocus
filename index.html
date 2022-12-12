@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Trap focusable element</title>
+		<style>
+			* {
+				margin: 1rem;
+			}
+
+			form {
+				border: 1px solid;
+			}
+		</style>
+	</head>
+	<body>
+		<button id="trapfocus">Trap Focus in the form</button>
+		<button id="removefocus">remove Focus in the form</button>
+		<form>
+			<p>Form</p>
+			<label for="fname">first Name</label>
+			<input type="text" name="fname" id="fname" />
+			<label for="lname">last Name</label>
+			<input type="text" name="lname" id="lname" />
+			<label for="age">Age</label>
+			<input type="number" name="age" id="age" />
+			<input type="submit" value="submit" />
+		</form>
+
+		<a href="#">focusable element</a>
+		<button>another focusable element</button>
+		<button>another focusable element</button>
+
+		<script>
+			if (typeof window.myWebSite == "undefined") {
+				window.myWebSite = {};
+			}
+			function trapFocus(element) {
+				// customize focusable Elements to consider
+				myWebSite.trapFocus = { element };
+
+				myWebSite.trapFocus.focusableEls = element.querySelectorAll(
+					'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]),input[type="number"]:not([disabled]),input[type="submit"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])'
+				);
+				myWebSite.trapFocus.firstFocusableEl =
+					myWebSite.trapFocus.focusableEls[0];
+				myWebSite.trapFocus.lastFocusableEl =
+					myWebSite.trapFocus.focusableEls[
+						myWebSite.trapFocus.focusableEls.length - 1
+					];
+				var KEYCODE_TAB = 9;
+
+				element.addEventListener("keydown", trapFocusHandler);
+			}
+
+			function trapFocusHandler(e) {
+				console.log(this);
+				var isTabPressed = e.key === "Tab" || e.keyCode === KEYCODE_TAB;
+
+				if (!isTabPressed) {
+					return;
+				}
+
+				if (e.shiftKey) {
+					/* shift + tab */ if (
+						document.activeElement === myWebSite.trapFocus.firstFocusableEl
+					) {
+						myWebSite.trapFocus.lastFocusableEl.focus();
+						e.preventDefault();
+					}
+				} /* tab */ else {
+					if (document.activeElement === myWebSite.trapFocus.lastFocusableEl) {
+						myWebSite.trapFocus.firstFocusableEl.focus();
+						e.preventDefault();
+					}
+				}
+			}
+
+			function removeFocus(element) {
+				element.removeEventListener("keydown", trapFocusHandler);
+			}
+
+			document
+				.getElementById("trapfocus")
+				.addEventListener("click", function () {
+					trapFocus(document.querySelector("form"));
+				});
+			document
+				.getElementById("removefocus")
+				.addEventListener("click", function () {
+					removeFocus(document.querySelector("form"));
+				});
+		</script>
+	</body>
+</html>
